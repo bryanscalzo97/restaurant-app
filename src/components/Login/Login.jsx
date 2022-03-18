@@ -9,9 +9,46 @@ import {
   Link,
   Stack,
   Image,
+  FormHelperText,
 } from "@chakra-ui/react";
+import { useState } from "react";
+import axios from "axios";
 
 export default function Login() {
+  const [invalidForm, setInvalidForm] = useState(true);
+  const [datos, setDatos] = useState({
+    email: "",
+    password: "",
+  });
+
+  const sendRequest = (event) => {
+    console.log(datos.email + " hola" + datos.password);
+    axios
+      .post("http://challenge-react.alkemy.org/", {
+        email: datos.email,
+        password: datos.password,
+      })
+      .then(function (response) {
+        console.log(response.data.token);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  };
+
+  const handleChange = (event) => {
+    // Actualizar el estado del formulario en base a los cambios de inputs
+    setDatos({
+      ...datos,
+      [event.target.name]: event.target.value,
+    });
+    if (datos.email === "challenge@alkemy.org" && datos.password === "react") {
+      setInvalidForm(false);
+    } else {
+      setInvalidForm(true);
+    }
+  };
+
   return (
     <Stack minH={"100vh"} direction={{ base: "column", md: "row" }}>
       <Flex p={8} flex={1} align={"center"} justify={"center"}>
@@ -19,12 +56,34 @@ export default function Login() {
           <h1>Welcome to Scalzo Restaurant</h1>
           <Heading fontSize={"2xl"}>Sign in to your account</Heading>
           <FormControl id="email">
-            <FormLabel>Email address</FormLabel>
-            <Input type="email" />
+            <FormLabel htmlFor="email">Email address</FormLabel>
+            <Input
+              id="email"
+              type="email"
+              onChange={handleChange}
+              placeholder="challenge@alkemy.org"
+              name="email"
+            />
+            <FormHelperText>
+              {String(invalidForm)} {datos.email}
+            </FormHelperText>
+            {invalidForm ? (
+              <FormHelperText>
+                Enter the email challenge@alkemy.org
+              </FormHelperText>
+            ) : (
+              <FormHelperText>Es valido</FormHelperText>
+            )}
           </FormControl>
-          <FormControl id="password">
+          <FormControl id="password" isRequired>
             <FormLabel>Password</FormLabel>
-            <Input type="password" />
+            <Input
+              type="password"
+              placeholder="react"
+              onChange={handleChange}
+              name="password"
+            />
+            <FormHelperText>{}</FormHelperText>
           </FormControl>
           <Stack spacing={6}>
             <Stack
@@ -38,7 +97,7 @@ export default function Login() {
             <Button
               colorScheme={"blue"}
               variant={"solid"}
-              onClick={() => alert("que emocion")}
+              onClick={() => sendRequest()}
             >
               Sign in
             </Button>
